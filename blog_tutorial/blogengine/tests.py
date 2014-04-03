@@ -1,5 +1,8 @@
 from django.test import TestCase, LiveServerTestCase, Client
 from django.utils import timezone
+from django.contrib.flatpages.models import FlatPage
+from django.contrib.sites.models import Site
+from django.core.urlresolvers import reverse
 
 from blogengine.models import Post
 
@@ -32,11 +35,13 @@ class PostTest(TestCase):
         self.assertEquals(only_post.pub_date.second, post.pub_date.second)
 
 
-class AdminTest(LiveServerTestCase):
-    fixtures = ['users.json']
-
+class BaseAcceptanceTest(LiveServerTestCase):
     def setUp(self):
         self.client = Client()
+
+
+class AdminTest(BaseAcceptanceTest):
+    fixtures = ['users.json']
 
     def test_login(self):
         response = self.client.get('/admin/')
@@ -149,10 +154,9 @@ class AdminTest(LiveServerTestCase):
         self.assertEquals(len(all_posts), 0)
 
 
-class PostViewTest(LiveServerTestCase):
+class PostViewTest(BaseAcceptanceTest):
 
     def setUp(self):
-        self.client = Client()
         # Setup the first post
         self.post = Post()
         self.post.title = 'My first post'
@@ -167,7 +171,7 @@ class PostViewTest(LiveServerTestCase):
         all_posts = Post.objects.all()
         self.assertEqual(len(all_posts), 1)
 
-        response = self.client.get('/')
+        response = self.client.get(reverse('blogs:index'))
         self.assertEquals(response.status_code, 200)
 
         self.assertTrue(self.post.title in response.content)
@@ -179,9 +183,12 @@ class PostViewTest(LiveServerTestCase):
         self.assertTrue(str(self.post.pub_date.day) in response.content)
 
     def test_post_page(self):
-        post_url = self.only_post.get_absolute_url()
+        #post_url = self.only_post.get_absolute_url()
 
-        response = self.client.get(post_url)
+        response = self.client.get(reverse(
+            'blogs:detail',
+            args=[self.only_post.id])
+        )
         self.assertEqual(response.status_code, 200)
 
         self.assertTrue(self.post.title in response.content)
