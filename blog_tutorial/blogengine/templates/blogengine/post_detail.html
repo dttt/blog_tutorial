@@ -5,4 +5,8 @@
     <h3>{{ object.pub_date }}</h3>
     {{ object.text }}
 </div>
+<h4>Comments</h4>
+        <div class="fb-comments" data-href="http://{{ post.site }}{% url 'blogs:detail' post.id %}" data-width="470" data-num-posts="10"></div>
+        </div>
+
 {% endblock %}

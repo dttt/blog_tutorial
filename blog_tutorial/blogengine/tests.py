@@ -17,6 +17,12 @@ class PostTest(TestCase):
         )
         author.save()
 
+        # Create the site
+        site = Site()
+        site.name = 'example.com'
+        site.domain = 'example.com'
+        site.save()
+
         # Creates first post to test
         post = Post()
         post.title = 'My first post'
@@ -24,7 +30,7 @@ class PostTest(TestCase):
         post.pub_date = timezone.now()
         post.slug = 'my-first-post'
         post.author = author
-
+        post.site = site
         post.save()
 
         # Tests if first post saved
@@ -44,6 +50,7 @@ class PostTest(TestCase):
         self.assertEquals(only_post.pub_date.second, post.pub_date.second)
         self.assertEquals(only_post.author.username, 'testuser')
         self.assertEquals(only_post.author.email, 'user@example.com')
+        self.assertEqual(only_post.site.name, 'example.com')
 
 
 class BaseAcceptanceTest(LiveServerTestCase):
@@ -55,6 +62,12 @@ class BaseAcceptanceTest(LiveServerTestCase):
         )
         self.author.save()
 
+        # Create a site
+        self.site = Site()
+        self.site.name = 'example.com'
+        self.site.domain = 'example.com'
+        self.site.save()
+
         # Create a post for testing
         self.post = Post()
         self.post.title = 'My first post'
@@ -62,6 +75,7 @@ class BaseAcceptanceTest(LiveServerTestCase):
         self.post.pub_date = timezone.now()
         self.post.slug = 'my-first-post'
         self.post.author = self.author
+        self.post.site = self.site
         self.post.save()
 
 
@@ -99,7 +113,8 @@ class AdminTest(BaseAcceptanceTest):
             'text': 'This is my first post',
             'pub_date_0': '2013-12-28',
             'pub_date_1': '22:00:03',
-            'slug': 'my-second-post'
+            'slug': 'my-second-post',
+            'site': '1'
             },
             follow=True
         )
@@ -130,7 +145,8 @@ class AdminTest(BaseAcceptanceTest):
                 'text': 'This is my second blog post',
                 'pub_date_0': '2013-12-28',
                 'pub_date_1': '22:00:04',
-                'slug': 'my-second-post'
+                'slug': 'my-second-post',
+                'site': '1'
             },
             follow=True
         )
@@ -251,3 +267,4 @@ class FlatPageViewTest(BaseAcceptanceTest):
 
         self.assertTrue('About me' in response.content)
         self.assertTrue('All about me' in response.content)
+
