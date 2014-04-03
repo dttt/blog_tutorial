@@ -1,0 +1,38 @@
+[
+{
+  "pk": 1, 
+  "model": "auth.user", 
+  "fields": {
+    "username": "dttt", 
+    "first_name": "", 
+    "last_name": "", 
+    "is_active": true, 
+    "is_superuser": true, 
+    "is_staff": true, 
+    "last_login": "2014-04-03T03:02:47.165Z", 
+    "groups": [], 
+    "user_permissions": [], 
+    "password": "pbkdf2_sha256$12000$ODZh7pvx4hZq$SUfUHRsPQ8pfaVszptn3klSVf5W5E/a+DIPBhRVEwH0=", 
+    "email": "trungtrong456@gmail.com", 
+    "date_joined": "2014-04-03T03:02:47.165Z"
+  }
+},
+{
+  "pk": 2, 
+  "model": "auth.user", 
+  "fields": {
+    "username": "admintest", 
+    "first_name": "", 
+    "last_name": "", 
+    "is_active": true, 
+    "is_superuser": true, 
+    "is_staff": true, 
+    "last_login": "2014-04-03T03:29:27.282Z", 
+    "groups": [], 
+    "user_permissions": [], 
+    "password": "pbkdf2_sha256$12000$EBfaBGOesPAX$Sp2YkHDTIgEZjo4Uc/J80RJMQZ1jhVbJuv7mgn7TFAg=", 
+    "email": "admin@admin.com", 
+    "date_joined": "2014-04-03T03:29:27.282Z"
+  }
+}
+]
