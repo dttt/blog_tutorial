@@ -3,6 +3,7 @@ from django.utils import timezone
 from django.contrib.flatpages.models import FlatPage
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
+from django.contrib.auth.models import User
 
 from blogengine.models import Post
 
@@ -10,12 +11,20 @@ from blogengine.models import Post
 class PostTest(TestCase):
 
     def test_create_post(self):
+        # Create the author
+        author = User.objects.create_user(
+            'testuser', 'user@example.com', 'password'
+        )
+        author.save()
+
         # Creates first post to test
         post = Post()
         post.title = 'My first post'
         post.text = 'This is my first blog post'
         post.pub_date = timezone.now()
         post.slug = 'my-first-post'
+        post.author = author
+
         post.save()
 
         # Tests if first post saved
@@ -33,11 +42,27 @@ class PostTest(TestCase):
         self.assertEquals(only_post.pub_date.hour, post.pub_date.hour)
         self.assertEquals(only_post.pub_date.minute, post.pub_date.minute)
         self.assertEquals(only_post.pub_date.second, post.pub_date.second)
+        self.assertEquals(only_post.author.username, 'testuser')
+        self.assertEquals(only_post.author.email, 'user@example.com')
 
 
 class BaseAcceptanceTest(LiveServerTestCase):
     def setUp(self):
         self.client = Client()
+        # Create a author for post
+        self.author = User.objects.create_user(
+            'testuser', 'user@example.com', 'password'
+        )
+        self.author.save()
+
+        # Create a post for testing
+        self.post = Post()
+        self.post.title = 'My first post'
+        self.post.text = 'This is my first blog post'
+        self.post.pub_date = timezone.now()
+        self.post.slug = 'my-first-post'
+        self.post.author = self.author
+        self.post.save()
 
 
 class AdminTest(BaseAcceptanceTest):
@@ -82,16 +107,16 @@ class AdminTest(BaseAcceptanceTest):
         self.assertTrue('added successfully' in response.content)
         # Checks new post in database
         all_posts = Post.objects.all()
-        self.assertEquals(len(all_posts), 1)
+        self.assertEquals(len(all_posts), 2)
 
     def test_edit_post(self):
         # Create the post
-        post = Post()
-        post.title = 'My first post'
-        post.text = 'This is my first blog post'
-        post.pub_date = timezone.now()
-        post.slug = 'my-first-post'
-        post.save()
+        #post = Post()
+        #post.title = 'My first post'
+        #post.text = 'This is my first blog post'
+        #post.pub_date = timezone.now()
+        #post.slug = 'my-first-post'
+        #post.save()
 
         # Log in
         self.client.login(username='admintest', password="totalwar")
@@ -99,7 +124,7 @@ class AdminTest(BaseAcceptanceTest):
         # Edit the post
         response = self.client.post(
             '/admin/blogengine/post/' +
-            str(post.id) +
+            str(self.post.id) +
             '/', {
                 'title': 'My second post',
                 'text': 'This is my second blog post',
@@ -123,12 +148,12 @@ class AdminTest(BaseAcceptanceTest):
 
     def test_delete_post(self):
         # Create the post
-        post = Post()
-        post.title = 'My first post'
-        post.text = 'This is my first blog post'
-        post.pub_date = timezone.now()
-        post.slug = 'my-first-post'
-        post.save()
+        #post = Post()
+        #post.title = 'My first post'
+        #post.text = 'This is my first blog post'
+        #post.pub_date = timezone.now()
+        #post.slug = 'my-first-post'
+        #post.save()
 
         # Check new post saved
         all_posts = Post.objects.all()
@@ -140,7 +165,7 @@ class AdminTest(BaseAcceptanceTest):
         # Delete the post
         response = self.client.post(
             '/admin/blogengine/post/' +
-            str(post.id) +
+            str(self.post.id) +
             '/delete/', {
                 'post': 'yes'
             }, follow=True)
@@ -155,17 +180,16 @@ class AdminTest(BaseAcceptanceTest):
 
 
 class PostViewTest(BaseAcceptanceTest):
-
-    def setUp(self):
+    #def setUp(self):
         # Setup the first post
-        self.post = Post()
-        self.post.title = 'My first post'
-        self.post.text = 'This is my first blog post'
-        self.post.pub_date = timezone.now()
-        self.post.slug = 'my-first-post'
-        self.post.save()
+        #self.post = Post()
+        #self.post.title = 'My first post'
+        #self.post.text = 'This is my first blog post'
+        #self.post.pub_date = timezone.now()
+        #self.post.slug = 'my-first-post'
+        #self.post.save()
         # Get the first post
-        self.only_post = Post.objects.all()[0]
+        #self.only_post = Post.objects.all()[0]
 
     def test_index(self):
         all_posts = Post.objects.all()
@@ -185,9 +209,10 @@ class PostViewTest(BaseAcceptanceTest):
     def test_post_page(self):
         #post_url = self.only_post.get_absolute_url()
 
+        only_post = Post.objects.all()[0]
         response = self.client.get(reverse(
             'blogs:detail',
-            args=[self.only_post.id])
+            args=[only_post.id])
         )
         self.assertEqual(response.status_code, 200)
 
