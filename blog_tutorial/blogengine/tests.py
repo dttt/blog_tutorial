@@ -136,3 +136,30 @@ class AdminTest(LiveServerTestCase):
         # Check post amended
         all_posts = Post.objects.all()
         self.assertEquals(len(all_posts), 0)
+
+
+class PostViewTest(LiveServerTestCase):
+
+    def setUp(self):
+        self.client = Client()
+
+    def test_index(self):
+        post = Post()
+        post.title = 'My first post'
+        post.text = 'This is my first blog post'
+        post.pub_date = timezone.now()
+        post.save()
+
+        all_posts = Post.objects.all()
+        self.assertEqual(len(all_posts), 1)
+
+        response = self.client.get('/')
+        self.assertEquals(response.status_code, 200)
+
+        self.assertTrue(post.title in response.content)
+
+        self.assertTrue(post.text in response.content)
+
+        self.assertTrue(str(post.pub_date.year) in response.content)
+        self.assertTrue(post.pub_date.strftime('%b') in response.content)
+        self.assertTrue(str(post.pub_date.day) in response.content)
