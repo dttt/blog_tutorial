@@ -12,6 +12,7 @@ class PostTest(TestCase):
         post.title = 'My first post'
         post.text = 'This is my first blog post'
         post.pub_date = timezone.now()
+        post.slug = 'my-first-post'
         post.save()
 
         # Tests if first post saved
@@ -67,7 +68,8 @@ class AdminTest(LiveServerTestCase):
             'title': 'My first post',
             'text': 'This is my first post',
             'pub_date_0': '2013-12-28',
-            'pub_date_1': '22:00:03'
+            'pub_date_1': '22:00:03',
+            'slug': 'my-second-post'
             },
             follow=True
         )
@@ -83,18 +85,23 @@ class AdminTest(LiveServerTestCase):
         post.title = 'My first post'
         post.text = 'This is my first blog post'
         post.pub_date = timezone.now()
+        post.slug = 'my-first-post'
         post.save()
 
         # Log in
         self.client.login(username='admintest', password="totalwar")
 
         # Edit the post
-        response = self.client.post('/admin/blogengine/post/' + str(post.id) + '/', {
-            'title': 'My second post',
-            'text': 'This is my second blog post',
-            'pub_date_0': '2013-12-28',
-            'pub_date_1': '22:00:04'
-        },
+        response = self.client.post(
+            '/admin/blogengine/post/' +
+            str(post.id) +
+            '/', {
+                'title': 'My second post',
+                'text': 'This is my second blog post',
+                'pub_date_0': '2013-12-28',
+                'pub_date_1': '22:00:04',
+                'slug': 'my-second-post'
+            },
             follow=True
         )
         self.assertEquals(response.status_code, 200)
@@ -115,6 +122,7 @@ class AdminTest(LiveServerTestCase):
         post.title = 'My first post'
         post.text = 'This is my first blog post'
         post.pub_date = timezone.now()
+        post.slug = 'my-first-post'
         post.save()
 
         # Check new post saved
@@ -125,9 +133,12 @@ class AdminTest(LiveServerTestCase):
         self.client.login(username='admintest', password="totalwar")
 
         # Delete the post
-        response = self.client.post('/admin/blogengine/post/' + str(post.id) + '/delete/', {
-            'post': 'yes'
-        }, follow=True)
+        response = self.client.post(
+            '/admin/blogengine/post/' +
+            str(post.id) +
+            '/delete/', {
+                'post': 'yes'
+            }, follow=True)
         self.assertEquals(response.status_code, 200)
 
         # Check deleted successfully
@@ -142,24 +153,37 @@ class PostViewTest(LiveServerTestCase):
 
     def setUp(self):
         self.client = Client()
+        # Setup the first post
+        self.post = Post()
+        self.post.title = 'My first post'
+        self.post.text = 'This is my first blog post'
+        self.post.pub_date = timezone.now()
+        self.post.slug = 'my-first-post'
+        self.post.save()
+        # Get the first post
+        self.only_post = Post.objects.all()[0]
 
     def test_index(self):
-        post = Post()
-        post.title = 'My first post'
-        post.text = 'This is my first blog post'
-        post.pub_date = timezone.now()
-        post.save()
-
         all_posts = Post.objects.all()
         self.assertEqual(len(all_posts), 1)
 
         response = self.client.get('/')
         self.assertEquals(response.status_code, 200)
 
-        self.assertTrue(post.title in response.content)
+        self.assertTrue(self.post.title in response.content)
 
-        self.assertTrue(post.text in response.content)
+        self.assertTrue(self.post.text in response.content)
 
-        self.assertTrue(str(post.pub_date.year) in response.content)
-        self.assertTrue(post.pub_date.strftime('%b') in response.content)
-        self.assertTrue(str(post.pub_date.day) in response.content)
+        self.assertTrue(str(self.post.pub_date.year) in response.content)
+        self.assertTrue(self.post.pub_date.strftime('%b') in response.content)
+        self.assertTrue(str(self.post.pub_date.day) in response.content)
+
+    def test_post_page(self):
+        post_url = self.only_post.get_absolute_url()
+
+        response = self.client.get(post_url)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertTrue(self.post.title in response.content)
+
+        #self.assertTrue(srt(post.pub_date))

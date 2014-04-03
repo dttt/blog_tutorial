@@ -1,12 +1,11 @@
 from django.conf.urls import patterns, url
-from django.views.generic import ListView
 
-from blogengine.models import Post
+from blogengine import views
 
 urlpatterns = patterns('',
     # Index url
-    url('^$', ListView.as_view(
-        model=Post,
-        paginate_by=5,
-        )),
+    url(r'^$', views.IndexView.as_view(), name="index"),
+
+    # Show url
+    url(r'^(?P<pk>\d+)/$', views.DetailView.as_view(), name="detail"),
 )
