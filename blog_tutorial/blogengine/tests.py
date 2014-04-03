@@ -89,7 +89,7 @@ class AdminTest(LiveServerTestCase):
         self.client.login(username='admintest', password="totalwar")
 
         # Edit the post
-        response = self.client.post('/admin/blogengine/post/1/', {
+        response = self.client.post('/admin/blogengine/post/' + str(post.id) + '/', {
             'title': 'My second post',
             'text': 'This is my second blog post',
             'pub_date_0': '2013-12-28',
@@ -125,7 +125,7 @@ class AdminTest(LiveServerTestCase):
         self.client.login(username='admintest', password="totalwar")
 
         # Delete the post
-        response = self.client.post('/admin/blogengine/post/1/delete/', {
+        response = self.client.post('/admin/blogengine/post/' + str(post.id) + '/delete/', {
             'post': 'yes'
         }, follow=True)
         self.assertEquals(response.status_code, 200)
