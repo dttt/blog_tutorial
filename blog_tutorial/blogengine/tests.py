@@ -194,3 +194,35 @@ class PostViewTest(BaseAcceptanceTest):
         self.assertTrue(self.post.title in response.content)
 
         #self.assertTrue(srt(post.pub_date))
+
+
+class FlatPageViewTest(BaseAcceptanceTest):
+    def test_create_flat_page(self):
+        page = FlatPage()
+        page.url = '/about'
+        page.title = 'About me'
+        page.content = "All about me"
+        page.save()
+
+        page.sites.add(Site.objects.all()[0])
+        page.save()
+
+        all_pages = FlatPage.objects.all()
+        self.assertEqual(len(all_pages), 1)
+        only_page = all_pages[0]
+        self.assertEqual(only_page, page)
+
+        self.assertEquals(only_page.url, '/about')
+        self.assertEquals(only_page.title, 'About me')
+        self.assertEquals(only_page.content, 'All about me')
+
+        page_url = reverse(
+            'django.contrib.flatpages.views.flatpage',
+            kwargs={'url': 'about'}
+        )
+
+        response = self.client.get(page_url)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertTrue('About me' in response.content)
+        self.assertTrue('All about me' in response.content)

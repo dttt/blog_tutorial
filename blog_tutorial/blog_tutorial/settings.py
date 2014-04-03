@@ -40,6 +40,7 @@ INSTALLED_APPS = (
     'blogengine',
     'django.contrib.sites',
     'django.contrib.flatpages',
+    'django_nose',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -91,3 +92,5 @@ STATIC_URL = '/static/'
 
 TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
 SITE_ID = 1
+
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
