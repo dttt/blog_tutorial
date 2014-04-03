@@ -7,4 +7,12 @@
             {{ post.text }}
         </div>
     {% endfor %}
+
+    <!-- Pagination -->
+    {% if page_obj.has_previous %}
+        <a href="/{{ page_obj.previous_page_number }}/">Previous</a>
+    {% endif %}
+    {% if page_obj.has_next %}
+        <a href="/{{ page_obj.next_page_number }}/">Next Page</a>
+    {% endif %}
 {% endblock %}
