@@ -1,0 +1,16 @@
+{
+  "name": "blogtutorial",
+  "version": "0.0.0",
+  "authors": [
+    "Trung Doan <trungtrong456@gmail.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {}
+}
